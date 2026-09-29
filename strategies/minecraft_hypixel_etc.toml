@@ -1,0 +1,18 @@
+[metadata]
+id = "minecraft_hypixel_etc"
+name = "Minecraft Hypixel Etc"
+version = 1
+
+[intercept]
+tcp_ports = ["80", "443", "2053", "2083", "2087", "2096", "8443", "25565"]
+udp_ports = ["443", "19294-19344", "50000-50100", "25565"]
+game_filter_tcp = true
+game_filter_udp = true
+
+[[profile]]
+id = "profile_1"
+protocol = "tcp"
+ports = ["25565"]
+game_filter = false
+arguments = ["--ipset-exclude=lists/ipset-exclude.txt", "--dpi-desync-any-protocol=1", "--dpi-desync-cutoff=n5", "--dpi-desync=multisplit", "--dpi-desync-split-seqovl=582", "--dpi-desync-split-pos=1", "--dpi-desync-split-seqovl-pattern=bin/tls_clienthello_4pda_to.bin"]
+

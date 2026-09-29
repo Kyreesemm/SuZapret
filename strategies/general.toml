@@ -1,32 +1,32 @@
 [metadata]
 id = "general"
-name = "General Flowseal strategy"
+name = "General"
 version = 1
 
 [intercept]
 tcp_ports = ["80", "443", "2053", "2083", "2087", "2096", "8443"]
 udp_ports = ["443", "19294-19344", "50000-50100"]
+game_filter_tcp = true
+game_filter_udp = true
 
 [[profile]]
 id = "general-tls"
 protocol = "tcp"
 ports = ["80", "443"]
-hostlists = ["lists/list-general.txt"]
-ipset_excludes = ["lists/ipset-exclude.txt"]
 arguments = [
-  "--dpi-desync=fake",
-  "--dpi-desync-repeats=6",
-  "--dpi-desync-fooling=ts",
-  "--dpi-desync-fake-tls=bin/tls_clienthello_www_google_com.bin"
+  "--hostlist=lists/list-general.txt",
+  "--dpi-desync=multisplit",
+  "--dpi-desync-split-seqovl=568",
+  "--dpi-desync-split-pos=1",
+  "--dpi-desync-split-seqovl-pattern=bin/tls_clienthello_4pda_to.bin"
 ]
 
 [[profile]]
 id = "general-quic"
 protocol = "udp"
 ports = ["443"]
-hostlists = ["lists/list-general.txt"]
-ipset_excludes = ["lists/ipset-exclude.txt"]
 arguments = [
+  "--hostlist=lists/list-general.txt",
   "--dpi-desync=fake",
   "--dpi-desync-repeats=6",
   "--dpi-desync-fake-quic=bin/quic_initial_www_google_com.bin"

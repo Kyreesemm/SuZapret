@@ -1,10 +1,10 @@
 use std::{fs, path::{Path, PathBuf}};
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::{Result, SuZapretError};
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Strategy {
     pub metadata: Metadata,
     pub intercept: Intercept,
@@ -12,27 +12,35 @@ pub struct Strategy {
     pub profiles: Vec<Profile>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Metadata {
     pub id: String,
     pub name: String,
     #[serde(default = "default_version")]
     pub version: u32,
+    #[serde(default)]
+    pub source: String,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Intercept {
     #[serde(default)]
     pub tcp_ports: Vec<String>,
     #[serde(default)]
     pub udp_ports: Vec<String>,
+    #[serde(default)]
+    pub game_filter_tcp: bool,
+    #[serde(default)]
+    pub game_filter_udp: bool,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Profile {
     pub id: String,
     pub protocol: Protocol,
     pub ports: Vec<String>,
+    #[serde(default)]
+    pub game_filter: bool,
     #[serde(default)]
     pub hostlists: Vec<PathBuf>,
     #[serde(default)]
@@ -45,7 +53,7 @@ pub struct Profile {
     pub arguments: Vec<String>,
 }
 
-#[derive(Debug, Clone, Copy, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Protocol {
     Tcp,

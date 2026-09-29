@@ -3,6 +3,7 @@
 pub mod error;
 pub mod strategy;
 pub mod backend;
+pub mod converter;
 
 pub use backend::{Backend, ZapretBackend};
 pub use error::{Result, SuZapretError};

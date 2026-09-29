@@ -1,0 +1,74 @@
+[metadata]
+id = "general_alt12"
+name = "General (ALT12)"
+version = 1
+
+[intercept]
+tcp_ports = ["80", "443", "2053", "2083", "2087", "2096", "8443"]
+udp_ports = ["443", "19294-19344", "50000-50100"]
+game_filter_tcp = true
+game_filter_udp = true
+
+[[profile]]
+id = "profile_1"
+protocol = "udp"
+ports = ["443"]
+game_filter = false
+arguments = ["--hostlist=lists/list-general.txt", "--hostlist=lists/list-general-user.txt", "--hostlist-exclude=lists/list-exclude.txt", "--hostlist-exclude=lists/list-exclude-user.txt", "--ipset-exclude=lists/ipset-exclude.txt", "--ipset-exclude=lists/ipset-exclude-user.txt", "--dpi-desync=fake", "--dpi-desync-repeats=11", "--dpi-desync-fake-quic=bin/quic_initial_www_google_com.bin"]
+
+[[profile]]
+id = "profile_2"
+protocol = "udp"
+ports = ["19294-19344", "50000-50100"]
+game_filter = false
+arguments = ["--filter-l7=discord,stun", "--dpi-desync=fake", "--dpi-desync-fake-discord=bin/stun.bin", "--dpi-desync-fake-discord=bin/ACTIVE_DISCORD_UDP.bin", "--dpi-desync-fake-stun=bin/ACTIVE_DISCORD_UDP.bin", "--dpi-desync-repeats=3"]
+
+[[profile]]
+id = "profile_3"
+protocol = "tcp"
+ports = ["2053", "2083", "2087", "2096", "8443"]
+game_filter = false
+arguments = ["--hostlist-domains=discord.media", "--dpi-desync=fake,multisplit", "--dpi-desync-split-seqovl=681", "--dpi-desync-split-pos=1", "--dpi-desync-fooling=ts", "--dpi-desync-repeats=8", "--dpi-desync-split-seqovl-pattern=bin/tls_clienthello_www_google_com.bin", "--dpi-desync-fake-tls=bin/tls_clienthello_www_google_com.bin"]
+
+[[profile]]
+id = "profile_4"
+protocol = "tcp"
+ports = ["443"]
+game_filter = false
+arguments = ["--hostlist=lists/list-google.txt", "--ip-id=zero", "--dpi-desync=hostfakesplit", "--dpi-desync-fooling=ts", "--dpi-desync-hostfakesplit-mod=host=www.google.com"]
+
+[[profile]]
+id = "profile_5"
+protocol = "tcp"
+ports = ["80", "443"]
+game_filter = false
+arguments = ["--hostlist=lists/list-general.txt", "--hostlist=lists/list-general-user.txt", "--hostlist-exclude=lists/list-exclude.txt", "--hostlist-exclude=lists/list-exclude-user.txt", "--ipset-exclude=lists/ipset-exclude.txt", "--ipset-exclude=lists/ipset-exclude-user.txt", "--dpi-desync=fake,multisplit", "--dpi-desync-split-seqovl=664", "--dpi-desync-split-pos=1", "--dpi-desync-fooling=ts", "--dpi-desync-repeats=8", "--dpi-desync-split-seqovl-pattern=bin/tls_clienthello_max_ru.bin", "--dpi-desync-fake-tls=bin/stun.bin", "--dpi-desync-fake-tls=bin/tls_clienthello_max_ru.bin", "--dpi-desync-fake-http=bin/tls_clienthello_max_ru.bin"]
+
+[[profile]]
+id = "profile_6"
+protocol = "udp"
+ports = ["443"]
+game_filter = false
+arguments = ["--ipset=lists/ipset-all.txt", "--hostlist-exclude=lists/list-exclude.txt", "--hostlist-exclude=lists/list-exclude-user.txt", "--ipset-exclude=lists/ipset-exclude.txt", "--ipset-exclude=lists/ipset-exclude-user.txt", "--dpi-desync=fake", "--dpi-desync-repeats=11", "--dpi-desync-fake-quic=bin/quic_initial_www_google_com.bin"]
+
+[[profile]]
+id = "profile_7"
+protocol = "tcp"
+ports = ["80", "443", "8443"]
+game_filter = false
+arguments = ["--ipset=lists/ipset-all.txt", "--hostlist-exclude=lists/list-exclude.txt", "--hostlist-exclude=lists/list-exclude-user.txt", "--ipset-exclude=lists/ipset-exclude.txt", "--ipset-exclude=lists/ipset-exclude-user.txt", "--dpi-desync=fake,multisplit", "--dpi-desync-split-seqovl=664", "--dpi-desync-split-pos=1", "--dpi-desync-fooling=ts", "--dpi-desync-repeats=8", "--dpi-desync-split-seqovl-pattern=bin/tls_clienthello_max_ru.bin", "--dpi-desync-fake-tls=bin/stun.bin", "--dpi-desync-fake-tls=bin/tls_clienthello_max_ru.bin", "--dpi-desync-fake-http=bin/tls_clienthello_max_ru.bin"]
+
+[[profile]]
+id = "profile_8"
+protocol = "tcp"
+ports = ["${game_filter_tcp}"]
+game_filter = true
+arguments = ["--ipset=lists/ipset-all.txt", "--ipset-exclude=lists/ipset-exclude.txt", "--ipset-exclude=lists/ipset-exclude-user.txt", "--dpi-desync=fake,multisplit", "--dpi-desync-any-protocol=1", "--dpi-desync-cutoff=n4", "--dpi-desync-split-seqovl=664", "--dpi-desync-split-pos=1", "--dpi-desync-fooling=ts", "--dpi-desync-repeats=8", "--dpi-desync-split-seqovl-pattern=bin/tls_clienthello_max_ru.bin", "--dpi-desync-fake-tls=bin/stun.bin", "--dpi-desync-fake-tls=bin/tls_clienthello_max_ru.bin", "--dpi-desync-fake-http=bin/tls_clienthello_max_ru.bin", "--dpi-desync-fake-unknown=bin/stun.bin", "--dpi-desync-fake-unknown=bin/tls_clienthello_max_ru.bin"]
+
+[[profile]]
+id = "profile_9"
+protocol = "udp"
+ports = ["${game_filter_udp}"]
+game_filter = true
+arguments = ["--ipset=lists/ipset-all.txt", "--ipset-exclude=lists/ipset-exclude.txt", "--ipset-exclude=lists/ipset-exclude-user.txt", "--dpi-desync=fake", "--dpi-desync-repeats=10", "--dpi-desync-any-protocol=1", "--dpi-desync-fake-unknown-udp=bin/ACTIVE_GAME_UDP.bin", "--dpi-desync-cutoff=n4"]
+

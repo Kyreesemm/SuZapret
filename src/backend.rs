@@ -38,16 +38,35 @@ impl ZapretBackend {
             command.arg(format!("--wf-tcp={}", strategy.intercept.tcp_ports.join(",")));
             command.arg(format!("--wf-udp={}", strategy.intercept.udp_ports.join(",")));
         }
-        for profile in &strategy.profiles {
-            self.append_profile(&mut command, profile)?;
-            #[cfg(windows)]
-            command.arg("--new");
+        for (index, profile) in strategy.profiles.iter().enumerate() {
+            self.append_profile(&mut command, profile, strategy)?;
+            if index + 1 < strategy.profiles.len() {
+                command.arg("--new");
+            }
         }
         Ok(command)
     }
 
-    fn append_profile(&self, command: &mut Command, profile: &Profile) -> Result<()> {
-        let ports = profile.ports.join(",");
+    fn append_profile(
+        &self,
+        command: &mut Command,
+        profile: &Profile,
+        strategy: &Strategy,
+    ) -> Result<()> {
+        let ports = profile
+            .ports
+            .iter()
+            .filter_map(|port| match port.as_str() {
+                "${game_filter_tcp}" if !profile.game_filter || !strategy.intercept.game_filter_tcp => None,
+                "${game_filter_udp}" if !profile.game_filter || !strategy.intercept.game_filter_udp => None,
+                "${game_filter_tcp}" | "${game_filter_udp}" => Some("1024-65535"),
+                value => Some(value),
+            })
+            .collect::<Vec<_>>()
+            .join(",");
+        if ports.is_empty() {
+            return Ok(());
+        }
         match profile.protocol {
             Protocol::Tcp => { command.arg(format!("--filter-tcp={ports}")); }
             Protocol::Udp => { command.arg(format!("--filter-udp={ports}")); }
@@ -67,6 +86,7 @@ impl ZapretBackend {
         command.args(&profile.arguments);
         Ok(())
     }
+
 }
 
 impl Backend for ZapretBackend {
