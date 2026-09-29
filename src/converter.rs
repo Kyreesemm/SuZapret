@@ -138,3 +138,60 @@ fn capitalize(value: &str) -> String {
 }
 
 fn invalid(message: &str) -> SuZapretError { SuZapretError::InvalidStrategy(message.to_owned()) }
+
+#[cfg(test)]
+mod tests {
+    use std::{fs, time::{SystemTime, UNIX_EPOCH}};
+
+    use super::*;
+
+    fn temporary_file() -> std::path::PathBuf {
+        let suffix = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map(|duration| duration.as_nanos())
+            .unwrap_or(0);
+        std::env::temp_dir().join(format!("suzapret-converter-test-{suffix}.bat"))
+    }
+
+    #[test]
+    fn converts_profiles_and_normalizes_paths() {
+        let path = temporary_file();
+        let source = r#"start "zapret" winws.exe --wf-tcp=80,443,%GameFilterTCP% --wf-udp=443,%GameFilterUDP% ^
+--filter-tcp=443 --hostlist="%LISTS%list.txt" --dpi-desync=fake --new ^
+--filter-udp=%GameFilterUDP% --dpi-desync=fake --dpi-desync-fake-quic="%BIN%quic.bin""#;
+        assert!(fs::write(&path, source).is_ok());
+
+        let strategy = convert_bat(&path);
+        assert!(strategy.is_ok());
+        let strategy = strategy.unwrap_or_else(|_| unreachable!());
+        assert_eq!(strategy.intercept.tcp_ports, vec!["80", "443"]);
+        assert_eq!(strategy.profiles.len(), 2);
+        assert_eq!(strategy.profiles[0].arguments[0], "--hostlist=lists/list.txt");
+        assert!(strategy.profiles[1].game_filter);
+        assert_eq!(strategy.profiles[1].arguments[1], "--dpi-desync-fake-quic=bin/quic.bin");
+        assert!(fs::remove_file(path).is_ok());
+    }
+
+    #[test]
+    fn rejects_a_file_without_a_launch_command() {
+        let path = temporary_file();
+        assert!(fs::write(&path, "echo no zapret").is_ok());
+        assert!(matches!(convert_bat(&path), Err(SuZapretError::InvalidStrategy(message)) if message.contains("winws.exe")));
+        assert!(fs::remove_file(path).is_ok());
+    }
+
+    #[test]
+    fn writes_valid_toml() {
+        let input = temporary_file();
+        let output = input.with_extension("toml");
+        let source = "winws.exe --wf-tcp=443 --wf-udp=443 --filter-tcp=443 --dpi-desync=fake";
+        assert!(fs::write(&input, source).is_ok());
+        let strategy = convert_bat(&input);
+        assert!(strategy.is_ok());
+        let strategy = strategy.unwrap_or_else(|_| unreachable!());
+        assert!(write_toml(&strategy, &output).is_ok());
+        assert!(Strategy::from_file(&output).is_ok());
+        assert!(fs::remove_file(input).is_ok());
+        assert!(fs::remove_file(output).is_ok());
+    }
+}

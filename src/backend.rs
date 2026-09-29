@@ -174,3 +174,28 @@ fn run_nft<const N: usize>(args: [&str; N]) -> Result<()> {
         details: String::from_utf8_lossy(&output.stderr).trim().to_owned(),
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::Backend;
+
+    #[test]
+    fn new_backend_is_not_running() {
+        let mut backend = ZapretBackend::new("runtime");
+        assert_eq!(backend.is_running().ok(), Some(false));
+    }
+
+    #[test]
+    fn stopping_an_idle_backend_returns_not_running() {
+        let mut backend = ZapretBackend::new("runtime");
+        assert!(matches!(backend.stop(), Err(SuZapretError::NotRunning)));
+    }
+
+    #[test]
+    fn relative_resources_are_resolved_from_runtime_root() {
+        let backend = ZapretBackend::new("runtime/linux");
+        assert_eq!(backend.resource_path(Path::new("bin/nfqws")), PathBuf::from("runtime/linux/bin/nfqws"));
+        assert_eq!(backend.resource_path(Path::new("/tmp/resource")), PathBuf::from("/tmp/resource"));
+    }
+}

@@ -137,3 +137,65 @@ impl StrategyStore {
         Ok(ids)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::{fs, time::{SystemTime, UNIX_EPOCH}};
+
+    use super::*;
+
+    fn temporary_directory() -> PathBuf {
+        let suffix = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map(|duration| duration.as_nanos())
+            .unwrap_or(0);
+        std::env::temp_dir().join(format!("suzapret-strategy-test-{suffix}"))
+    }
+
+    fn valid_strategy() -> Strategy {
+        Strategy {
+            metadata: Metadata { id: "test".into(), name: "Test".into(), version: 1, source: String::new() },
+            intercept: Intercept { tcp_ports: vec!["443".into()], udp_ports: Vec::new(), game_filter_tcp: false, game_filter_udp: false },
+            profiles: vec![Profile {
+                id: "tls".into(), protocol: Protocol::Tcp, ports: vec!["443".into()], game_filter: false,
+                hostlists: Vec::new(), hostlist_domains: Vec::new(), ipsets: Vec::new(), ipset_excludes: Vec::new(),
+                arguments: vec!["--dpi-desync=fake".into()],
+            }],
+        }
+    }
+
+    #[test]
+    fn validates_a_complete_strategy() {
+        assert!(valid_strategy().validate().is_ok());
+    }
+
+    #[test]
+    fn rejects_unsupported_format_versions() {
+        let mut strategy = valid_strategy();
+        strategy.metadata.version = 2;
+        assert!(matches!(strategy.validate(), Err(SuZapretError::InvalidStrategy(message)) if message.contains("unsupported format version")));
+    }
+
+    #[test]
+    fn rejects_multiline_arguments() {
+        let mut strategy = valid_strategy();
+        strategy.profiles[0].arguments.push("bad\nargument".into());
+        assert!(strategy.validate().is_err());
+    }
+
+    #[test]
+    fn store_lists_and_loads_strategies() {
+        let directory = temporary_directory();
+        assert!(fs::create_dir_all(&directory).is_ok());
+        let strategy_path = directory.join("test.toml");
+        let serialized = toml::to_string(&valid_strategy());
+        assert!(serialized.is_ok());
+        assert!(fs::write(&strategy_path, serialized.unwrap_or_default()).is_ok());
+
+        let store = StrategyStore::new(&directory);
+        assert_eq!(store.list().ok(), Some(vec!["test".into()]));
+        assert_eq!(store.load("test").ok().map(|strategy| strategy.metadata.id), Some("test".into()));
+        assert!(store.load("../test").is_err());
+        assert!(fs::remove_dir_all(directory).is_ok());
+    }
+}
