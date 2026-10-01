@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090d16">
+  <title>SuZapret — панель управления</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app-window" id="appWindow">
+    <header class="top-nav-container">
+      <nav class="nav-pill" role="tablist" aria-label="Разделы приложения">
+        <button class="nav-tab active" data-tab="tab-home" role="tab" aria-selected="true" data-tooltip="Главная"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg></button>
+        <button class="nav-tab" data-tab="tab-gamefilter" role="tab" aria-selected="false" data-tooltip="GameFilter"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h4m-2-2v4m7 1h.01M18 11h.01"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg></button>
+        <button class="nav-tab" data-tab="tab-logs" role="tab" aria-selected="false" data-tooltip="Логи"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 17 6-6-6-6M12 19h8"/></svg></button>
+      </nav>
+    </header>
+
+    <section class="tab-content active" id="tab-home" role="tabpanel">
+      <div class="brand-section"><h1 class="logo-title" aria-label="SuZapret"><span class="logo-word"><span class="logo-su">Su</span><span class="logo-zapret">Zapret</span></span></h1><p class="brand-tagline">Свободный интернет начинается здесь</p></div>
+      <div class="controls-card">
+        <div class="input-group"><label for="strategySelect" class="input-label"><span class="label-text">Стратегия</span><span class="label-badge" id="strategyCountBadge">25 вариантов</span></label><div class="custom-select-wrapper"><select id="strategySelect" class="styled-select" aria-label="Выбор стратегии обхода"></select><svg class="select-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></div></div>
+        <div class="input-group"><label for="modeSelect" class="input-label"><span class="label-text">Режим фильтрации</span><span class="label-hint">IPSET</span></label><div class="custom-select-wrapper"><select id="modeSelect" class="styled-select" aria-label="Выбор режима фильтрации"><option value="ipset">IPSet — рекомендованный</option><option value="lists">Списки доменов</option><option value="full">Полная фильтрация</option></select><svg class="select-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></div></div>
+        <div class="setting-row compact-row"><div class="setting-info"><span class="setting-name">GameFilter</span><span class="setting-desc">Игры, Discord и UDP-трафик</span></div><label class="toggle-switch"><input type="checkbox" id="gameFilterToggle" checked><span class="toggle-slider"></span></label></div>
+      </div>
+      <button id="toggleBtn" class="action-btn" type="button"><span class="btn-glow"></span><span class="btn-icon-wrapper"><svg class="btn-icon icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 4 13 8-13 8V4Z"/></svg><svg class="btn-icon icon-stop" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg></span><span class="btn-label" id="btnLabel">Запустить SuZapret</span></button>
+      <footer class="status-footer"><div class="status-indicator-box" id="statusIndicatorBox"><div class="status-dot-container"><span class="status-dot" id="statusDot"></span></div><span class="status-title" id="statusText">SuZapret остановлен</span></div></footer>
+    </section>
+
+    <section class="tab-content" id="tab-gamefilter" role="tabpanel"><div class="view-header"><span class="section-kicker">TRAFFIC CONTROL</span><h2 class="view-title">Настройки GameFilter</h2><p class="view-subtitle">Точная настройка игрового и голосового трафика</p></div><div class="settings-list"><div class="setting-row"><div class="setting-info"><span class="setting-name">TCP GameFilter</span><span class="setting-desc">Игровые соединения и веб-трафик</span></div><label class="toggle-switch"><input type="checkbox" id="toggleGfTcp" checked><span class="toggle-slider"></span></label></div><div class="setting-row"><div class="setting-info"><span class="setting-name">UDP GameFilter</span><span class="setting-desc">Discord, голосовые серверы и игры</span></div><label class="toggle-switch"><input type="checkbox" id="toggleGfUdp" checked><span class="toggle-slider"></span></label></div><div class="setting-row"><div class="setting-info"><span class="setting-name">Авто-восстановление</span><span class="setting-desc">Очистка правил после остановки</span></div><label class="toggle-switch"><input type="checkbox" id="toggleAutoClean" checked><span class="toggle-slider"></span></label></div></div><div class="info-note"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg><span>Изменения применятся при следующем запуске.</span></div></section>
+
+    <section class="tab-content" id="tab-logs" role="tabpanel"><div class="view-header flex-between"><div><span class="section-kicker">DIAGNOSTICS</span><h2 class="view-title">Журнал событий</h2><p class="view-subtitle">Системные события SuZapret</p></div><button id="clearLogsBtn" class="mini-btn" type="button">Очистить</button></div><div class="terminal-window" id="terminalLog"><div class="log-entry log-system">[--:--:--] [SYSTEM] Интерфейс SuZapret готов</div><div class="log-entry log-info">[--:--:--] [CORE] Ожидание запуска стратегии</div></div></section>
+
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
